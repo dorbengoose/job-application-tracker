@@ -1,0 +1,88 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  fullName  String?
+  createdAt DateTime @default(now())
+
+  applications JobApplication[]
+  notes        Note[]
+  sessions     Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model JobApplication {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  company     String
+  role        String
+  jobUrl      String?
+  location    String?
+  salaryMin   Int?
+  salaryMax   Int?
+  stage       String   @default("APPLIED")
+  priority    String   @default("MEDIUM")
+  source      String?
+  appliedDate DateTime
+
+  contacts    String   @default("[]")
+  documents   String   @default("{}")
+
+  deletedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  notes       Note[]
+  events      ApplicationEvent[]
+
+  @@index([userId])
+  @@index([stage])
+}
+
+model Note {
+  id            String   @id @default(cuid())
+  applicationId String
+  application   JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content       String
+  createdAt     DateTime @default(now())
+
+  @@index([applicationId])
+  @@index([userId])
+}
+
+model ApplicationEvent {
+  id            String   @id @default(cuid())
+  applicationId String
+  application   JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  eventType     String
+  oldValue      String?
+  newValue      String?
+  createdAt     DateTime @default(now())
+
+  @@index([applicationId])
+}

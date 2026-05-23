@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@14 . --typescript --tailwind --eslint --app --no-git --import-alias '@/*' --skip-install)",
+      "Read(//e/Aprendizaje/Claude Code/01 Youtube full course/**)",
+      "Bash(npx create-next-app@14 job-app-tracker --typescript --tailwind --eslint --app --no-git --import-alias '@/*' --skip-install)",
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(npm list *)",
+      "Bash(npx prisma *)",
+      "Bash(npx prisma@5.8.0 migrate dev --name init)",
+      "Bash(dir node_modules)",
+      "Bash(node -e \"console.log\\(require.resolve\\('prisma'\\)\\)\")",
+      "Bash(node node_modules/prisma/build/index.js migrate dev --name init)",
+      "Bash(set DATABASE_URL=file:./prisma/dev.db)",
+      "Bash(cd \"E:\\\\Aprendizaje\\\\Claude Code\\\\01 Youtube full course\\\\00 First exercise\")",
+      "Bash(export DATABASE_URL=\"file:./prisma/dev.db\")",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:4000/login)",
+      "Bash(curl -s -X POST http://localhost:4000/api/auth/signup -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s http://localhost:4000/login -I)",
+      "Bash(curl *)",
+      "Bash(npm test *)",
+      "Bash(git init *)",
+      "Bash(git config *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'Initial commit: Job Application Tracker - Complete project *)"
+    ]
+  }
+}
