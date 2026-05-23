@@ -93,7 +93,11 @@ function execCommand(command, silent = false) {
 
 function commandExists(cmd) {
   try {
-    execSync(`command -v ${cmd}`, { stdio: 'pipe' });
+    if (process.platform === 'win32') {
+      execSync(`where ${cmd}`, { stdio: 'pipe' });
+    } else {
+      execSync(`command -v ${cmd}`, { stdio: 'pipe' });
+    }
     return true;
   } catch {
     return false;
@@ -446,7 +450,7 @@ function step8Verification() {
   stepHeader('Final Verification & Validation');
 
   log('Showing commit history...');
-  const logResult = execCommand('git log --oneline | head -10', true);
+  const logResult = execCommand('git log --oneline -10', true);
   if (logResult.success) {
     logResult.output.split('\n').forEach(line => info(line));
   }

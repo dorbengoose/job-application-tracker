@@ -45,69 +45,155 @@ export default function SignupPage() {
     }
   }
 
+  const inputStyle = {
+    width: '100%',
+    height: '40px',
+    border: '1px solid var(--border-default)',
+    borderRadius: 'var(--radius-md)',
+    padding: '0 12px',
+    fontSize: '14px',
+    color: 'var(--text-primary)',
+    background: 'var(--bg-surface)',
+    outline: 'none',
+    transition: 'border-color 0.15s, box-shadow 0.15s',
+  } as React.CSSProperties;
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: '13px',
+    fontWeight: 500,
+    color: 'var(--text-secondary)',
+    marginBottom: '6px',
+  } as React.CSSProperties;
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.borderColor = 'var(--border-focus)';
+    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0,112,243,0.15)';
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.borderColor = 'var(--border-default)';
+    e.currentTarget.style.boxShadow = 'none';
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Full Name
-        </label>
+        <h2
+          style={{
+            fontSize: '16px',
+            fontWeight: 600,
+            color: 'var(--text-primary)',
+            marginBottom: '4px',
+          }}
+        >
+          Create an account
+        </h2>
+        <p style={{ fontSize: '13px', color: 'var(--text-tertiary)' }}>
+          Start tracking your job applications today.
+        </p>
+      </div>
+
+      <div>
+        <label style={labelStyle}>Full name</label>
         <input
           type="text"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="John Doe"
+          style={inputStyle}
+          placeholder="Jane Doe"
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </div>
+
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Email address
-        </label>
+        <label style={labelStyle}>Email address</label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          style={inputStyle}
           placeholder="you@example.com"
           required
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </div>
+
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Password
-        </label>
+        <label style={labelStyle}>Password</label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          style={inputStyle}
           placeholder="At least 8 characters"
           required
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </div>
+
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Confirm Password
-        </label>
+        <label style={labelStyle}>Confirm password</label>
         <input
           type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          style={inputStyle}
           required
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+
+      {error && (
+        <div
+          style={{
+            background: 'var(--danger-light)',
+            border: '1px solid #fecaca',
+            borderRadius: 'var(--radius-md)',
+            padding: '10px 12px',
+            fontSize: '13px',
+            color: '#dc2626',
+          }}
+        >
+          {error}
+        </div>
+      )}
+
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 font-medium"
+        style={{
+          width: '100%',
+          height: '40px',
+          background: loading ? 'var(--border-strong)' : 'var(--accent)',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: 'var(--radius-md)',
+          fontSize: '14px',
+          fontWeight: 500,
+          cursor: loading ? 'not-allowed' : 'pointer',
+          transition: 'background 0.15s',
+        }}
+        onMouseEnter={(e) => {
+          if (!loading) e.currentTarget.style.background = 'var(--accent-hover)';
+        }}
+        onMouseLeave={(e) => {
+          if (!loading) e.currentTarget.style.background = 'var(--accent)';
+        }}
       >
-        {loading ? 'Creating account...' : 'Sign up'}
+        {loading ? 'Creating account...' : 'Create account'}
       </button>
-      <p className="text-center text-sm text-gray-600">
+
+      <p style={{ textAlign: 'center', fontSize: '13px', color: 'var(--text-tertiary)' }}>
         Already have an account?{' '}
-        <Link href="/login" className="text-blue-600 hover:text-blue-500">
+        <Link
+          href="/login"
+          style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 500 }}
+        >
           Sign in
         </Link>
       </p>

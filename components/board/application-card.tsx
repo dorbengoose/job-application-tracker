@@ -9,6 +9,18 @@ interface ApplicationCardProps {
   onSelect?: (app: JobApplication) => void;
 }
 
+const priorityConfig = {
+  HIGH:   { color: '#dc2626', bg: '#fef2f2', border: '#fecaca', label: 'High' },
+  MEDIUM: { color: '#d97706', bg: '#fffbeb', border: '#fde68a', label: 'Medium' },
+  LOW:    { color: '#059669', bg: '#ecfdf5', border: '#a7f3d0', label: 'Low' },
+} as const;
+
+const priorityDotColors = {
+  HIGH:   '#dc2626',
+  MEDIUM: '#d97706',
+  LOW:    '#059669',
+} as const;
+
 export function ApplicationCard({ application, onSelect }: ApplicationCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: application.id
@@ -17,32 +29,121 @@ export function ApplicationCard({ application, onSelect }: ApplicationCardProps)
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1
+    opacity: isDragging ? 0.7 : 1,
+    rotate: isDragging ? '1deg' : '0deg',
+    boxShadow: isDragging ? 'var(--shadow-md)' : 'none',
+    zIndex: isDragging ? 50 : 'auto',
+    position: 'relative' as const,
   };
 
-  const priorityColors = {
-    HIGH: 'bg-red-100 text-red-800',
-    MEDIUM: 'bg-yellow-100 text-yellow-800',
-    LOW: 'bg-green-100 text-green-800'
-  };
+  const priority = application.priority as keyof typeof priorityConfig;
+  const pc = priorityConfig[priority] || priorityConfig.MEDIUM;
+  const dotColor = priorityDotColors[priority] || priorityDotColors.MEDIUM;
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
+        borderRadius: 'var(--radius-md)',
+        padding: '14px',
+        cursor: 'grab',
+        userSelect: 'none',
+        transition: isDragging
+          ? style.transition
+          : 'border-color 0.15s, box-shadow 0.15s',
+      }}
       {...attributes}
       {...listeners}
       onClick={() => onSelect?.(application)}
-      className="bg-white p-4 rounded-lg shadow hover:shadow-md cursor-move hover:bg-gray-50 transition"
+      onMouseEnter={(e) => {
+        if (!isDragging) {
+          (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-strong)';
+          (e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--shadow-sm)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isDragging) {
+          (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-default)';
+          (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
+        }
+      }}
     >
-      <h3 className="font-semibold text-gray-900 text-sm mb-1">{application.company}</h3>
-      <p className="text-gray-600 text-sm mb-2">{application.role}</p>
-      <div className="flex items-center justify-between">
-        <span className={`px-2 py-1 rounded text-xs font-medium ${priorityColors[application.priority as keyof typeof priorityColors]}`}>
-          {application.priority}
+      {/* Top row: company + priority dot */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '4px' }}>
+        <span
+          style={{
+            fontSize: '14px',
+            fontWeight: 600,
+            color: 'var(--text-primary)',
+            lineHeight: 1.3,
+            flex: 1,
+            minWidth: 0,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {application.company}
         </span>
-        <span className="text-gray-500 text-xs">
-          {new Date(application.appliedDate).toLocaleDateString()}
+        {/* Priority dot */}
+        <div
+          style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: dotColor,
+            flexShrink: 0,
+            marginTop: '3px',
+          }}
+          title={`${priority} priority`}
+        />
+      </div>
+
+      {/* Role */}
+      <p
+        style={{
+          fontSize: '13px',
+          color: 'var(--text-secondary)',
+          marginBottom: '10px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {application.role}
+      </p>
+
+      {/* Bottom row: date + priority pill */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span
+          style={{
+            fontSize: '11px',
+            color: 'var(--text-tertiary)',
+          }}
+        >
+          {new Date(application.appliedDate).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          })}
+        </span>
+
+        {/* Priority pill */}
+        <span
+          style={{
+            fontSize: '11px',
+            fontWeight: 500,
+            color: pc.color,
+            background: pc.bg,
+            border: `1px solid ${pc.border}`,
+            borderRadius: 'var(--radius-full)',
+            padding: '1px 7px',
+          }}
+        >
+          {pc.label}
         </span>
       </div>
     </div>

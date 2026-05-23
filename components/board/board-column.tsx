@@ -12,25 +12,92 @@ interface BoardColumnProps {
   onSelectCard?: (app: JobApplication) => void;
 }
 
-const stageColors = {
-  APPLIED: { bg: 'bg-blue-50', border: 'border-blue-200', header: 'bg-blue-100' },
-  PHONE_SCREEN: { bg: 'bg-purple-50', border: 'border-purple-200', header: 'bg-purple-100' },
-  INTERVIEW: { bg: 'bg-yellow-50', border: 'border-yellow-200', header: 'bg-yellow-100' },
-  OFFER: { bg: 'bg-green-50', border: 'border-green-200', header: 'bg-green-100' },
-  REJECTED: { bg: 'bg-red-50', border: 'border-red-200', header: 'bg-red-100' }
+const stageMeta: Record<string, { dot: string; label: string }> = {
+  APPLIED:      { dot: '#6366f1', label: 'APPLIED' },
+  PHONE_SCREEN: { dot: '#8b5cf6', label: 'PHONE SCREEN' },
+  INTERVIEW:    { dot: '#f59e0b', label: 'INTERVIEW' },
+  OFFER:        { dot: '#10b981', label: 'OFFER' },
+  REJECTED:     { dot: '#f43f5e', label: 'REJECTED' },
 };
 
 export function BoardColumn({ stage, label, applications, onSelectCard }: BoardColumnProps) {
-  const { setNodeRef } = useDroppable({ id: stage });
-  const colors = stageColors[stage as keyof typeof stageColors] || stageColors.APPLIED;
+  const { setNodeRef, isOver } = useDroppable({ id: stage });
+  const meta = stageMeta[stage] || stageMeta.APPLIED;
 
   return (
-    <div className={`flex-1 rounded-lg border-2 ${colors.border} ${colors.bg} flex flex-col min-h-[500px]`}>
-      <div className={`${colors.header} px-4 py-3 rounded-t-md mb-4`}>
-        <h3 className="font-semibold text-gray-900">{label}</h3>
-        <p className="text-sm text-gray-600">{applications.length} items</p>
+    <div
+      style={{
+        background: isOver ? '#f8f8f8' : 'var(--bg-subtle)',
+        border: `1px solid ${isOver ? 'var(--border-strong)' : 'var(--border-default)'}`,
+        borderRadius: 'var(--radius-lg)',
+        minHeight: '520px',
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'border-color 0.15s, background 0.15s',
+      }}
+    >
+      {/* Column Header */}
+      <div
+        style={{
+          padding: '16px 16px 12px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Stage dot */}
+          <div
+            style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: meta.dot,
+              flexShrink: 0,
+            }}
+          />
+          {/* Stage label */}
+          <span
+            style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              letterSpacing: '0.5px',
+              textTransform: 'uppercase',
+            }}
+          >
+            {meta.label}
+          </span>
+        </div>
+        {/* Count badge */}
+        <span
+          style={{
+            background: 'var(--bg-muted)',
+            color: 'var(--text-secondary)',
+            borderRadius: 'var(--radius-full)',
+            fontSize: '11px',
+            padding: '1px 7px',
+            fontWeight: 600,
+            minWidth: '20px',
+            textAlign: 'center',
+          }}
+        >
+          {applications.length}
+        </span>
       </div>
-      <div ref={setNodeRef} className="flex-1 px-4 pb-4 space-y-3 overflow-y-auto">
+
+      {/* Card Drop Zone */}
+      <div
+        ref={setNodeRef}
+        style={{
+          flex: 1,
+          padding: '0 12px 12px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          overflowY: 'auto',
+        }}
+      >
         <SortableContext items={applications.map((a) => a.id)} strategy={verticalListSortingStrategy}>
           {applications.map((app) => (
             <ApplicationCard
@@ -40,6 +107,28 @@ export function BoardColumn({ stage, label, applications, onSelectCard }: BoardC
             />
           ))}
         </SortableContext>
+
+        {applications.length === 0 && (
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '80px',
+            }}
+          >
+            <p
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-disabled)',
+                textAlign: 'center',
+              }}
+            >
+              No applications
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

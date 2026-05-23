@@ -7,38 +7,108 @@ interface StatsCardProps {
   value: number | string;
   icon?: React.ReactNode;
   color?: 'blue' | 'green' | 'red' | 'yellow' | 'purple';
+  trend?: string;
 }
 
-export function StatsCard({ label, value, icon, color = 'blue' }: StatsCardProps) {
-  const bgColors = {
-    blue: 'bg-blue-50 border-blue-200',
-    green: 'bg-green-50 border-green-200',
-    red: 'bg-red-50 border-red-200',
-    yellow: 'bg-yellow-50 border-yellow-200',
-    purple: 'bg-purple-50 border-purple-200'
-  };
+const colorConfig = {
+  blue:   { dot: '#6366f1', bg: '#eef2ff' },
+  green:  { dot: '#10b981', bg: '#ecfdf5' },
+  red:    { dot: '#f43f5e', bg: '#fff1f2' },
+  yellow: { dot: '#f59e0b', bg: '#fffbeb' },
+  purple: { dot: '#8b5cf6', bg: '#f5f3ff' },
+};
 
-  const textColors = {
-    blue: 'text-blue-600',
-    green: 'text-green-600',
-    red: 'text-red-600',
-    yellow: 'text-yellow-600',
-    purple: 'text-purple-600'
-  };
+export function StatsCard({ label, value, icon, color = 'blue', trend }: StatsCardProps) {
+  const cc = colorConfig[color];
 
   return (
-    <div className={`${bgColors[color]} border rounded-lg p-6`}>
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-gray-600 text-sm font-medium">{label}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
-        </div>
+    <div
+      style={{
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-default)',
+        borderRadius: 'var(--radius-lg)',
+        padding: '20px',
+        transition: 'border-color 0.15s, box-shadow 0.15s',
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-strong)';
+        (e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--shadow-sm)';
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-default)';
+        (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '12px' }}>
+        {/* Icon badge */}
         {icon && (
-          <div className={`${textColors[color]} text-2xl`}>
+          <div
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: 'var(--radius-md)',
+              background: cc.bg,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '16px',
+              flexShrink: 0,
+            }}
+          >
             {icon}
           </div>
         )}
+
+        {/* Color dot indicator */}
+        <div
+          style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: cc.dot,
+            flexShrink: 0,
+            marginTop: '4px',
+          }}
+        />
       </div>
+
+      {/* Value */}
+      <p
+        style={{
+          fontSize: '28px',
+          fontWeight: 700,
+          color: 'var(--text-primary)',
+          lineHeight: 1,
+          letterSpacing: '-0.5px',
+          marginBottom: '6px',
+        }}
+      >
+        {value}
+      </p>
+
+      {/* Label */}
+      <p
+        style={{
+          fontSize: '13px',
+          fontWeight: 500,
+          color: 'var(--text-secondary)',
+        }}
+      >
+        {label}
+      </p>
+
+      {/* Optional trend */}
+      {trend && (
+        <p
+          style={{
+            fontSize: '11px',
+            color: 'var(--text-tertiary)',
+            marginTop: '4px',
+          }}
+        >
+          {trend}
+        </p>
+      )}
     </div>
   );
 }

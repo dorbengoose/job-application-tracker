@@ -44,46 +44,99 @@ export function ApplicationForm({ application, onSubmit, onCancel }: Application
     }
   }
 
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    height: '40px',
+    border: '1px solid var(--border-default)',
+    borderRadius: 'var(--radius-md)',
+    padding: '0 12px',
+    fontSize: '14px',
+    color: 'var(--text-primary)',
+    background: 'var(--bg-surface)',
+    outline: 'none',
+    transition: 'border-color 0.15s, box-shadow 0.15s',
+    fontFamily: 'inherit',
+  };
+
+  const selectStyle: React.CSSProperties = {
+    ...inputStyle,
+    appearance: 'none',
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 15 15' fill='none'%3E%3Cpath d='M3.5 6l4 4 4-4' stroke='%23888' strokeWidth='1.3' strokeLinecap='round' strokeLinejoin='round'/%3E%3C/svg%3E")`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 10px center',
+    paddingRight: '30px',
+    cursor: 'pointer',
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: 'block',
+    fontSize: '13px',
+    fontWeight: 500,
+    color: 'var(--text-secondary)',
+    marginBottom: '6px',
+  };
+
+  const errorStyle: React.CSSProperties = {
+    fontSize: '12px',
+    color: '#dc2626',
+    marginTop: '4px',
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+    e.currentTarget.style.borderColor = 'var(--border-focus)';
+    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0,112,243,0.15)';
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+    e.currentTarget.style.borderColor = 'var(--border-default)';
+    e.currentTarget.style.boxShadow = 'none';
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Company */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Company *
-        </label>
+        <label style={labelStyle}>Company <span style={{ color: '#dc2626' }}>*</span></label>
         <input
           type="text"
           value={(formData as any).company || ''}
           onChange={(e) => setFormData({ ...formData, company: e.target.value } as any)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          style={inputStyle}
+          placeholder="e.g. Acme Corp"
           required
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
-        {errors.company && <p className="text-sm text-red-600 mt-1">{errors.company}</p>}
+        {errors.company && <p style={errorStyle}>{errors.company}</p>}
       </div>
 
+      {/* Role */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Role *
-        </label>
+        <label style={labelStyle}>Role <span style={{ color: '#dc2626' }}>*</span></label>
         <input
           type="text"
           value={(formData as any).role || ''}
           onChange={(e) => setFormData({ ...formData, role: e.target.value } as any)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          style={inputStyle}
+          placeholder="e.g. Senior Frontend Engineer"
           required
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
-        {errors.role && <p className="text-sm text-red-600 mt-1">{errors.role}</p>}
+        {errors.role && <p style={errorStyle}>{errors.role}</p>}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      {/* Stage + Priority */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Stage *
-          </label>
+          <label style={labelStyle}>Stage <span style={{ color: '#dc2626' }}>*</span></label>
           <select
             value={(formData as any).stage || 'APPLIED'}
             onChange={(e) => setFormData({ ...formData, stage: e.target.value } as any)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            style={selectStyle}
             required
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           >
             <option value="APPLIED">Applied</option>
             <option value="PHONE_SCREEN">Phone Screen</option>
@@ -94,14 +147,14 @@ export function ApplicationForm({ application, onSubmit, onCancel }: Application
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Priority *
-          </label>
+          <label style={labelStyle}>Priority <span style={{ color: '#dc2626' }}>*</span></label>
           <select
             value={(formData as any).priority || 'MEDIUM'}
             onChange={(e) => setFormData({ ...formData, priority: e.target.value } as any)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            style={selectStyle}
             required
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           >
             <option value="LOW">Low</option>
             <option value="MEDIUM">Medium</option>
@@ -110,96 +163,148 @@ export function ApplicationForm({ application, onSubmit, onCancel }: Application
         </div>
       </div>
 
+      {/* Applied Date */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Applied Date *
-        </label>
+        <label style={labelStyle}>Applied Date <span style={{ color: '#dc2626' }}>*</span></label>
         <input
           type="date"
           value={(formData as any).appliedDate || ''}
           onChange={(e) => setFormData({ ...formData, appliedDate: e.target.value } as any)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          style={inputStyle}
           required
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
-        {errors.appliedDate && <p className="text-sm text-red-600 mt-1">{errors.appliedDate}</p>}
+        {errors.appliedDate && <p style={errorStyle}>{errors.appliedDate}</p>}
       </div>
 
+      {/* Job URL */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Job URL
-        </label>
+        <label style={labelStyle}>Job URL</label>
         <input
           type="url"
           value={(formData as any).jobUrl || ''}
           onChange={(e) => setFormData({ ...formData, jobUrl: e.target.value } as any)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          style={inputStyle}
           placeholder="https://..."
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </div>
 
+      {/* Location */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Location
-        </label>
+        <label style={labelStyle}>Location</label>
         <input
           type="text"
           value={(formData as any).location || ''}
           onChange={(e) => setFormData({ ...formData, location: e.target.value } as any)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          style={inputStyle}
+          placeholder="e.g. New York, NY or Remote"
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      {/* Salary Min + Max */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Salary Min
-          </label>
+          <label style={labelStyle}>Salary Min</label>
           <input
             type="number"
             value={(formData as any).salaryMin || ''}
             onChange={(e) =>
               setFormData({ ...formData, salaryMin: e.target.value ? parseInt(e.target.value) : undefined } as any)
             }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            style={inputStyle}
+            placeholder="80000"
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Salary Max
-          </label>
+          <label style={labelStyle}>Salary Max</label>
           <input
             type="number"
             value={(formData as any).salaryMax || ''}
             onChange={(e) =>
               setFormData({ ...formData, salaryMax: e.target.value ? parseInt(e.target.value) : undefined } as any)
             }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            style={inputStyle}
+            placeholder="120000"
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           />
-          {errors.salaryMax && <p className="text-sm text-red-600 mt-1">{errors.salaryMax}</p>}
+          {errors.salaryMax && <p style={errorStyle}>{errors.salaryMax}</p>}
         </div>
       </div>
 
+      {/* Source */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Source
-        </label>
+        <label style={labelStyle}>Source</label>
         <input
           type="text"
           value={(formData as any).source || ''}
           onChange={(e) => setFormData({ ...formData, source: e.target.value } as any)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="LinkedIn, Referral, etc."
+          style={inputStyle}
+          placeholder="LinkedIn, Referral, Company website..."
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </div>
 
-      {errors.submit && <p className="text-sm text-red-600">{errors.submit}</p>}
+      {/* Submit error */}
+      {errors.submit && (
+        <div
+          style={{
+            background: 'var(--danger-light)',
+            border: '1px solid #fecaca',
+            borderRadius: 'var(--radius-md)',
+            padding: '10px 12px',
+            fontSize: '13px',
+            color: '#dc2626',
+          }}
+        >
+          {errors.submit}
+        </div>
+      )}
 
-      <div className="flex gap-2 justify-end">
+      {/* Actions */}
+      <div
+        style={{
+          display: 'flex',
+          gap: '8px',
+          justifyContent: 'flex-end',
+          paddingTop: '4px',
+        }}
+      >
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
+            style={{
+              height: '36px',
+              padding: '0 16px',
+              borderRadius: 'var(--radius-md)',
+              fontSize: '13px',
+              fontWeight: 500,
+              color: 'var(--text-secondary)',
+              background: 'transparent',
+              border: '1px solid var(--border-default)',
+              cursor: 'pointer',
+              transition: 'all 0.1s',
+              fontFamily: 'inherit',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--bg-muted)';
+              e.currentTarget.style.color = 'var(--text-primary)';
+              e.currentTarget.style.borderColor = 'var(--border-strong)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.borderColor = 'var(--border-default)';
+            }}
           >
             Cancel
           </button>
@@ -207,7 +312,25 @@ export function ApplicationForm({ application, onSubmit, onCancel }: Application
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 disabled:opacity-50"
+          style={{
+            height: '36px',
+            padding: '0 20px',
+            background: loading ? 'var(--border-strong)' : 'var(--accent)',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '13px',
+            fontWeight: 500,
+            cursor: loading ? 'not-allowed' : 'pointer',
+            transition: 'background 0.15s',
+            fontFamily: 'inherit',
+          }}
+          onMouseEnter={(e) => {
+            if (!loading) e.currentTarget.style.background = 'var(--accent-hover)';
+          }}
+          onMouseLeave={(e) => {
+            if (!loading) e.currentTarget.style.background = 'var(--accent)';
+          }}
         >
           {loading ? 'Saving...' : 'Save Application'}
         </button>

@@ -24,7 +24,21 @@
       "Bash(git init *)",
       "Bash(git config *)",
       "Bash(git add *)",
-      "Bash(git commit -m 'Initial commit: Job Application Tracker - Complete project *)"
+      "Bash(git commit -m 'Initial commit: Job Application Tracker - Complete project *)",
+      "Bash(gh repo *)",
+      "Bash(git commit -m 'Add GitHub sync command specification *)",
+      "Bash(git push *)",
+      "Bash(git commit -m 'Add GitHub upload summary and completion documentation *)",
+      "Bash(git ls-tree *)",
+      "Bash(cat)",
+      "Read(//tmp/**)",
+      "Bash(chmod +x github-sync.sh)",
+      "Bash(chmod +x github-sync.js)",
+      "Bash(git commit -m 'Add /github-sync command implementation *)",
+      "Bash(node github-sync.js)",
+      "WebSearch",
+      "WebFetch(domain:vercel.com)",
+      "Skill(update-config)"
     ]
   }
 }

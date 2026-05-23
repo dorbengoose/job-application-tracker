@@ -14,6 +14,20 @@ interface ApplicationDetailPanelProps {
   onDelete?: () => void;
 }
 
+const priorityConfig = {
+  HIGH:   { color: '#dc2626', bg: '#fef2f2', border: '#fecaca', label: 'High' },
+  MEDIUM: { color: '#d97706', bg: '#fffbeb', border: '#fde68a', label: 'Medium' },
+  LOW:    { color: '#059669', bg: '#ecfdf5', border: '#a7f3d0', label: 'Low' },
+} as const;
+
+const stageConfig: Record<string, { color: string; bg: string; label: string }> = {
+  APPLIED:      { color: '#6366f1', bg: '#eef2ff', label: 'Applied' },
+  PHONE_SCREEN: { color: '#8b5cf6', bg: '#f5f3ff', label: 'Phone Screen' },
+  INTERVIEW:    { color: '#f59e0b', bg: '#fffbeb', label: 'Interview' },
+  OFFER:        { color: '#10b981', bg: '#ecfdf5', label: 'Offer' },
+  REJECTED:     { color: '#f43f5e', bg: '#fff1f2', label: 'Rejected' },
+};
+
 export function ApplicationDetailPanel({
   application,
   isOpen,
@@ -32,6 +46,16 @@ export function ApplicationDetailPanel({
       loadNotes();
     }
   }, [isOpen, application.id]);
+
+  // Close on Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+    }
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [isOpen, onClose]);
 
   async function loadNotes() {
     try {
@@ -91,23 +115,146 @@ export function ApplicationDetailPanel({
 
   if (!isOpen) return null;
 
+  const priority = application.priority as keyof typeof priorityConfig;
+  const pc = priorityConfig[priority] || priorityConfig.MEDIUM;
+  const sc = stageConfig[application.stage] || stageConfig.APPLIED;
+
+  const fieldLabelStyle: React.CSSProperties = {
+    width: '120px',
+    flexShrink: 0,
+    fontSize: '11px',
+    fontWeight: 600,
+    color: 'var(--text-tertiary)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.4px',
+  };
+
+  const fieldValueStyle: React.CSSProperties = {
+    fontSize: '13px',
+    color: 'var(--text-primary)',
+    flex: 1,
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-end">
-      <div className="bg-white w-full max-w-md h-full overflow-y-auto flex flex-col">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-900">
-            {application.company} - {application.role}
-          </h2>
+    <>
+      {/* Backdrop */}
+      <div
+        className="fade-in"
+        onClick={onClose}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.4)',
+          backdropFilter: 'blur(4px)',
+          WebkitBackdropFilter: 'blur(4px)',
+          zIndex: 40,
+        }}
+      />
+
+      {/* Slide-over panel */}
+      <div
+        className="slide-in-right"
+        style={{
+          position: 'fixed',
+          top: 0,
+          bottom: 0,
+          right: 0,
+          width: '420px',
+          maxWidth: '100vw',
+          background: 'var(--bg-surface)',
+          borderLeft: '1px solid var(--border-default)',
+          boxShadow: 'var(--shadow-lg)',
+          zIndex: 50,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            padding: '20px 24px',
+            borderBottom: '1px solid var(--border-default)',
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            gap: '12px',
+            flexShrink: 0,
+          }}
+        >
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h2
+              style={{
+                fontSize: '15px',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                margin: 0,
+                lineHeight: 1.3,
+                letterSpacing: '-0.2px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {application.company}
+            </h2>
+            <p
+              style={{
+                fontSize: '13px',
+                color: 'var(--text-secondary)',
+                marginTop: '2px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {application.role}
+            </p>
+          </div>
+
+          {/* Close button */}
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
             aria-label="Close panel"
+            style={{
+              width: '28px',
+              height: '28px',
+              borderRadius: 'var(--radius-sm)',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--text-tertiary)',
+              transition: 'background 0.1s, color 0.1s',
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--bg-muted)';
+              e.currentTarget.style.color = 'var(--text-primary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'var(--text-tertiary)';
+            }}
           >
-            ×
+            <svg width="14" height="14" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z"
+                fill="currentColor"
+              />
+            </svg>
           </button>
         </div>
 
-        <div className="flex-1 px-6 py-4 space-y-6 overflow-y-auto">
+        {/* Body */}
+        <div
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '20px 24px',
+          }}
+        >
           {isEditing ? (
             <ApplicationForm
               application={application}
@@ -116,144 +263,290 @@ export function ApplicationDetailPanel({
             />
           ) : (
             <>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                    Stage
-                  </label>
-                  <span className="inline-block px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">
-                    {application.stage}
+              {/* Field rows */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '14px',
+                }}
+              >
+                {/* Stage */}
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <span style={fieldLabelStyle}>Stage</span>
+                  <span
+                    style={{
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      color: sc.color,
+                      background: sc.bg,
+                      borderRadius: 'var(--radius-full)',
+                      padding: '2px 10px',
+                    }}
+                  >
+                    {sc.label}
                   </span>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                    Priority
-                  </label>
-                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                    application.priority === 'HIGH' ? 'bg-red-100 text-red-800' :
-                    application.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-green-100 text-green-800'
-                  }`}>
-                    {application.priority}
+                {/* Priority */}
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <span style={fieldLabelStyle}>Priority</span>
+                  <span
+                    style={{
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      color: pc.color,
+                      background: pc.bg,
+                      border: `1px solid ${pc.border}`,
+                      borderRadius: 'var(--radius-full)',
+                      padding: '2px 10px',
+                    }}
+                  >
+                    {pc.label}
                   </span>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                    Applied Date
-                  </label>
-                  <p className="text-sm text-gray-900">
-                    {new Date(application.appliedDate).toLocaleDateString()}
-                  </p>
+                {/* Applied Date */}
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <span style={fieldLabelStyle}>Applied</span>
+                  <span style={fieldValueStyle}>
+                    {new Date(application.appliedDate).toLocaleDateString('en-US', {
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </span>
                 </div>
 
+                {/* Location */}
                 {application.location && (
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                      Location
-                    </label>
-                    <p className="text-sm text-gray-900">{application.location}</p>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <span style={fieldLabelStyle}>Location</span>
+                    <span style={fieldValueStyle}>{application.location}</span>
                   </div>
                 )}
 
+                {/* Job URL */}
                 {application.jobUrl && (
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                      Job URL
-                    </label>
+                  <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                    <span style={fieldLabelStyle}>Job URL</span>
                     <a
                       href={application.jobUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline break-all"
+                      style={{
+                        ...fieldValueStyle,
+                        color: 'var(--accent)',
+                        textDecoration: 'none',
+                        wordBreak: 'break-all',
+                        lineHeight: 1.4,
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
                     >
                       {application.jobUrl}
                     </a>
                   </div>
                 )}
 
+                {/* Salary */}
                 {(application.salaryMin || application.salaryMax) && (
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                      Salary Range
-                    </label>
-                    <p className="text-sm text-gray-900">
-                      {application.salaryMin ? `$${application.salaryMin.toLocaleString()}` : 'N/A'}
-                      {' - '}
-                      {application.salaryMax ? `$${application.salaryMax.toLocaleString()}` : 'N/A'}
-                    </p>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <span style={fieldLabelStyle}>Salary</span>
+                    <span style={fieldValueStyle}>
+                      {application.salaryMin ? `$${application.salaryMin.toLocaleString()}` : '—'}
+                      {' – '}
+                      {application.salaryMax ? `$${application.salaryMax.toLocaleString()}` : '—'}
+                    </span>
                   </div>
                 )}
 
+                {/* Source */}
                 {application.source && (
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                      Source
-                    </label>
-                    <p className="text-sm text-gray-900">{application.source}</p>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <span style={fieldLabelStyle}>Source</span>
+                    <span style={fieldValueStyle}>{application.source}</span>
                   </div>
                 )}
               </div>
 
-              <div className="border-t border-gray-200 pt-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Notes</h3>
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={newNote}
-                      onChange={(e) => setNewNote(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          handleAddNote();
-                        }
-                      }}
-                      placeholder="Add a note..."
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                    <button
-                      onClick={handleAddNote}
-                      className="px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
-                    >
-                      Add
-                    </button>
-                  </div>
+              {/* Notes section */}
+              <div
+                style={{
+                  marginTop: '24px',
+                  paddingTop: '20px',
+                  borderTop: '1px solid var(--border-default)',
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: 'var(--text-primary)',
+                    marginBottom: '12px',
+                    letterSpacing: '-0.1px',
+                  }}
+                >
+                  Notes
+                </h3>
 
-                  {loadingNotes ? (
-                    <p className="text-sm text-gray-600">Loading notes...</p>
-                  ) : notes.length === 0 ? (
-                    <p className="text-sm text-gray-600">No notes yet</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {notes.map((note) => (
-                        <div key={note.id} className="bg-gray-50 p-3 rounded-md">
-                          <p className="text-sm text-gray-900">{note.content}</p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {new Date(note.createdAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                {/* Add note input */}
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                  <input
+                    type="text"
+                    value={newNote}
+                    onChange={(e) => setNewNote(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') handleAddNote();
+                    }}
+                    placeholder="Add a note..."
+                    style={{
+                      flex: 1,
+                      height: '36px',
+                      border: '1px solid var(--border-default)',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '0 12px',
+                      fontSize: '13px',
+                      color: 'var(--text-primary)',
+                      background: 'var(--bg-subtle)',
+                      outline: 'none',
+                      transition: 'border-color 0.15s',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border-focus)';
+                      e.currentTarget.style.background = 'var(--bg-surface)';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border-default)';
+                      e.currentTarget.style.background = 'var(--bg-subtle)';
+                    }}
+                  />
+                  <button
+                    onClick={handleAddNote}
+                    style={{
+                      height: '36px',
+                      padding: '0 14px',
+                      background: 'var(--accent)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 'var(--radius-md)',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      transition: 'background 0.1s',
+                      whiteSpace: 'nowrap',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent-hover)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--accent)'; }}
+                  >
+                    Add
+                  </button>
                 </div>
+
+                {/* Notes list */}
+                {loadingNotes ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div className="skeleton" style={{ height: '52px', borderRadius: 'var(--radius-md)' }} />
+                    <div className="skeleton" style={{ height: '52px', borderRadius: 'var(--radius-md)' }} />
+                  </div>
+                ) : notes.length === 0 ? (
+                  <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', textAlign: 'center', padding: '16px 0' }}>
+                    No notes yet. Add your first note above.
+                  </p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {notes.map((note) => (
+                      <div
+                        key={note.id}
+                        style={{
+                          background: 'var(--bg-subtle)',
+                          border: '1px solid var(--border-default)',
+                          borderRadius: 'var(--radius-md)',
+                          padding: '10px 12px',
+                        }}
+                      >
+                        <p style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                          {note.content}
+                        </p>
+                        <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+                          {new Date(note.createdAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </>
           )}
         </div>
 
-        <div className="border-t border-gray-200 px-6 py-4 flex gap-2 justify-end">
+        {/* Footer actions */}
+        <div
+          style={{
+            borderTop: '1px solid var(--border-default)',
+            padding: '16px 24px',
+            display: 'flex',
+            gap: '8px',
+            justifyContent: 'flex-end',
+            flexShrink: 0,
+            background: 'var(--bg-surface)',
+          }}
+        >
           {!isEditing && (
             <>
               <button
                 onClick={() => setIsEditing(true)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
+                style={{
+                  height: '34px',
+                  padding: '0 14px',
+                  borderRadius: 'var(--radius-md)',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: 'var(--text-secondary)',
+                  background: 'transparent',
+                  border: '1px solid var(--border-default)',
+                  cursor: 'pointer',
+                  transition: 'all 0.1s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--bg-muted)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                  e.currentTarget.style.borderColor = 'var(--border-strong)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                  e.currentTarget.style.borderColor = 'var(--border-default)';
+                }}
               >
                 Edit
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-md"
+                style={{
+                  height: '34px',
+                  padding: '0 14px',
+                  borderRadius: 'var(--radius-md)',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: '#dc2626',
+                  background: 'transparent',
+                  border: '1px solid #fecaca',
+                  cursor: 'pointer',
+                  transition: 'all 0.1s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#fef2f2';
+                  e.currentTarget.style.borderColor = '#fca5a5';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.borderColor = '#fecaca';
+                }}
               >
                 Delete
               </button>
@@ -261,12 +554,33 @@ export function ApplicationDetailPanel({
           )}
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
+            style={{
+              height: '34px',
+              padding: '0 14px',
+              borderRadius: 'var(--radius-md)',
+              fontSize: '13px',
+              fontWeight: 500,
+              color: 'var(--text-secondary)',
+              background: 'transparent',
+              border: '1px solid var(--border-default)',
+              cursor: 'pointer',
+              transition: 'all 0.1s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--bg-muted)';
+              e.currentTarget.style.color = 'var(--text-primary)';
+              e.currentTarget.style.borderColor = 'var(--border-strong)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.borderColor = 'var(--border-default)';
+            }}
           >
             {isEditing ? 'Cancel' : 'Close'}
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 }

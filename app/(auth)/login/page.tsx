@@ -37,44 +37,130 @@ export default function LoginPage() {
     }
   }
 
+  const inputStyle = {
+    width: '100%',
+    height: '40px',
+    border: '1px solid var(--border-default)',
+    borderRadius: 'var(--radius-md)',
+    padding: '0 12px',
+    fontSize: '14px',
+    color: 'var(--text-primary)',
+    background: 'var(--bg-surface)',
+    outline: 'none',
+    transition: 'border-color 0.15s, box-shadow 0.15s',
+  } as React.CSSProperties;
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: '13px',
+    fontWeight: 500,
+    color: 'var(--text-secondary)',
+    marginBottom: '6px',
+  } as React.CSSProperties;
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Email address
-        </label>
+        <h2
+          style={{
+            fontSize: '16px',
+            fontWeight: 600,
+            color: 'var(--text-primary)',
+            marginBottom: '4px',
+          }}
+        >
+          Sign in
+        </h2>
+        <p style={{ fontSize: '13px', color: 'var(--text-tertiary)' }}>
+          Welcome back. Enter your credentials to continue.
+        </p>
+      </div>
+
+      <div>
+        <label style={labelStyle}>Email address</label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          style={inputStyle}
           placeholder="you@example.com"
           required
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border-focus)';
+            e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0,112,243,0.15)';
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border-default)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
         />
       </div>
+
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Password
-        </label>
+        <label style={labelStyle}>Password</label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          style={inputStyle}
           required
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border-focus)';
+            e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0,112,243,0.15)';
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border-default)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
         />
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+
+      {error && (
+        <div
+          style={{
+            background: 'var(--danger-light)',
+            border: '1px solid #fecaca',
+            borderRadius: 'var(--radius-md)',
+            padding: '10px 12px',
+            fontSize: '13px',
+            color: '#dc2626',
+          }}
+        >
+          {error}
+        </div>
+      )}
+
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 font-medium"
+        style={{
+          width: '100%',
+          height: '40px',
+          background: loading ? 'var(--border-strong)' : 'var(--accent)',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: 'var(--radius-md)',
+          fontSize: '14px',
+          fontWeight: 500,
+          cursor: loading ? 'not-allowed' : 'pointer',
+          transition: 'background 0.15s',
+        }}
+        onMouseEnter={(e) => {
+          if (!loading) e.currentTarget.style.background = 'var(--accent-hover)';
+        }}
+        onMouseLeave={(e) => {
+          if (!loading) e.currentTarget.style.background = 'var(--accent)';
+        }}
       >
-        {loading ? 'Logging in...' : 'Sign in'}
+        {loading ? 'Signing in...' : 'Sign in'}
       </button>
-      <p className="text-center text-sm text-gray-600">
-        Don't have an account?{' '}
-        <Link href="/signup" className="text-blue-600 hover:text-blue-500">
+
+      <p style={{ textAlign: 'center', fontSize: '13px', color: 'var(--text-tertiary)' }}>
+        Don&apos;t have an account?{' '}
+        <Link
+          href="/signup"
+          style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 500 }}
+        >
           Sign up
         </Link>
       </p>
